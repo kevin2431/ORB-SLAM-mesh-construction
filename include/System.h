@@ -115,6 +115,8 @@ public:
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
+    // 将keypoint转换到mesh数据结构中
+    void TransPoints2Mesh(const string &strSettingsFile);
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

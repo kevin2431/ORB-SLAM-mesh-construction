@@ -471,6 +471,151 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+void TransPoints2Mesh(const string &strSettingsFile)
+{
+    cout << "开始转换特征点信息" <<endl;
+    // 读取配置信息
+    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+
+    vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    cv::Mat Two = vpKFs[0]->GetPoseInverse();
+
+    // Frame pose is stored relative to its reference keyframe (which is optimized by BA and pose graph).
+    // We need to get first the keyframe pose and then concatenate the relative transformation.
+    // Frames not localized (tracking failure) are not saved.
+
+    // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
+    // which is true when tracking failed (lbL).
+
+    //记录相机 id
+    int c_id=0;
+    int globalID=0;
+
+    cout<<"正在将图像转换为点云..."<<endl;
+    // 定义点云使用的格式:这里用的是 XYZRGB typedef pcl::PointXYZRGB PointT;
+    typedef pcl::PointCloud<PointT> PointCloud;
+    // 新建一个点云
+    PointCloud::Ptr pointCloud( new PointCloud );
+
+    list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
+    list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++, c_id++)
+    {
+        ORB_SLAM2::KeyFrame* pKF = *lRit;
+
+        cv::Mat Trw = cv::Mat::eye(4,4,CV_32F);
+
+        while(pKF->isBad())
+        {
+          //  cout << "bad parent" << endl;
+            Trw = Trw*pKF->mTcp;
+            pKF = pKF->GetParent();
+        }
+
+        Trw = Trw*pKF->GetPose()*Two;
+
+        cv::Mat Tcw = (*lit)*Trw;
+        cv::Mat Rwc = Tcw.rowRange(0,3).colRange(0,3).t();
+        cv::Mat twc = -Rwc*Tcw.rowRange(0,3).col(3);
+
+
+        // 获取frame上计算出来的keypoint
+        // 并将keypoint从像素坐标转换到世界坐标（空间）
+        std::vector<cv::KeyPoint> keyPoints = mvKeysUn;
+        std::vector<float> depths = mvDepth;
+
+        CameraType tempCamera;
+
+		vector<glm::vec3> points;
+		
+        // 相机内参信息
+        float cx = fSettings["Camera.cx"];
+        float cy = fSettings["Camera.cy"];
+        float fx = fSettings["Camera.fx"];
+        float fy = fSettings["Camera.fx"];
+        // 双目没有这个参数
+        //float depthScale;
+        float imageWidth = fSettings["Camera.width"];
+        float imageHeight = fSettings["Camera.height"];
+
+        // 帧内特征点转换
+        for(int i = 0; i < keyPoints.size(); i++)
+        {   
+            // 像素坐标
+            float x = keyPoints[i].pt.x;
+            float y = keyPoints[i].pt.y;
+            float d = depths[i];
+
+            if ( d==0 ) continue; // 为 0 表示没有测量到
+
+            cv::Mat p = cv::Mat(4, 1, CV_32FC1);
+
+			p.ptr<float>(2)[0] = d ;
+
+			p.ptr<float>(0)[0] = (x - cx) * d / fx;
+			p.ptr<float>(1)[0] = (y - cy) * d / fy;
+			p.ptr<float>(3)[0] = 1;
+
+			cv::Mat temp = cv::Mat(4, 1, CV_32FC1);
+			temp = Tcw * p;
+			cv::Point3f newCoord = cv::Point3f(temp.ptr<float>(0)[0] / temp.ptr<float>(3)[0],
+					temp.ptr<float>(1)[0] / temp.ptr<float>(3)[0], temp.ptr<float>(2)[0] / temp.ptr<float>(3)[0]);
+
+			points.push_back(fromCV2GLM(newCoord));
+
+
+
+            PointT pc ;
+            pc.x = pointWorld[0];
+            pc.y = pointWorld[1];
+            pc.z = pointWorld[2];
+            pc.b = 0;
+            pc.g = 255;
+            pc.r = 0;
+            pointCloud->points.push_back( pc );
+
+        }
+        
+        glm::vec3 center3D;
+        center3D.x = twc.at<float>(0);
+        center3D.y = twc.at<float>(1);
+        center3D.z = twc.at<float>(2);
+
+		tempCamera.idCam = c_id;
+		tempCamera.center = center3D;
+		tempCamera.imageWidth = imageWidth;
+		tempCamera.imageHeight = imageHeight;
+
+        cameras[c_id] = tempCamera;
+
+		//set<NewPointType> tempFramePoints;
+        // 转换到mesh里的点
+		for (int k = 0; k < points.size(); k++)
+		{
+			//NewPointType* singlePoint = new NewPointType();
+			PointType* singlePoint = new PointType();
+
+			singlePoint->position = points[k];
+			singlePoint->idPoint = globalID;
+			singlePoint->addCamera(&cameras[c_id]);
+
+			(cameras[c_id].visiblePointsT).insert(singlePoint);
+
+			globalID++;
+		}
+    }
+
+    cout<< "特征点转换完毕" <<endl;
+    pointCloud->is_dense = false;
+    cout<<"点云共有"<<pointCloud->size()<<"个点."<<endl;
+    pcl::io::savePCDFileBinary("map.pcd", *pointCloud );
+
+}
+
 int System::GetTrackingState()
 {
     unique_lock<mutex> lock(mMutexState);

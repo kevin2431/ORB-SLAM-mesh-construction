@@ -92,8 +92,8 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/mesh/core/
-src/mesh/core/utilities/
+src/mesh/core/*.cpp
+src/mesh/core/utilities/*.cpp
 )
 
 # -----------------------  link library ---------------------------

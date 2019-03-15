@@ -563,11 +563,16 @@ void System::TransPoints2Mesh(vector<CameraType> &cameras)
     {
         ORB_SLAM2::KeyFrame* pKF = *lRit;
 
+        cv::Mat Trw = cv::Mat::eye(4,4,CV_32F);
+
         while(pKF->isBad())
         {
           //  cout << "bad parent" << endl;
+          // 坏指针时跳过，位姿也需要变化
+            Trw = Trw*pKF->mTcp;
             pKF = pKF->GetParent();
         }
+
         Trw = Trw*pKF->GetPose()*Two;
 
         cv::Mat Tcw = (*lit)*Trw;
@@ -606,7 +611,7 @@ void System::TransPoints2Mesh(vector<CameraType> &cameras)
 		tempCamera.imageWidth = 1241;
 		tempCamera.imageHeight = 376;
 
-        caneras.push_back(tempCanera);
+        cameras.push_back(tempCamera);
         //cameras[c_id] = tempCamera;
 
         // 转换到mesh里的点
@@ -627,7 +632,7 @@ void System::TransPoints2Mesh(vector<CameraType> &cameras)
        
     }
     cout<<"--------------------------------------------------------"<<endl;
-    cout<<"转换点数："<<global<<endl;
+    cout<<"转换点数："<<globalID<<endl;
 }
 
 /*

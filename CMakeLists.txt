@@ -108,8 +108,7 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
-add_executable(stereo_mesh
-Examples/Stereo/stereo_mesh.cpp)
+add_executable(stereo_mesh Examples/Stereo/stereo_mesh.cpp)
 target_link_libraries(stereo_mesh ${PROJECT_NAME} 
                                     ${OpenCV_LIBS}
                                     ${GMPXX_LIBRARIES}

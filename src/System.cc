@@ -520,7 +520,7 @@ void System::Trans2PointCloud()
             cv::Mat position = pKF->UnprojectStereo(i);
 
             // mat 为空的时候
-            if(position.dim == 0) continue;
+            if(position.dims == 0) continue;
 
             // point3f x,y,z访问
             PointT pc ;
@@ -587,7 +587,7 @@ void System::TransPoints2Mesh(vector<CameraType> &cameras)
             cv::Mat position = pKF->UnprojectStereo(i);
 
             // mat 为空的时候
-            if(position.dim == 0) continue;
+            if(position.dims == 0) continue;
             glm::vec3 temp_p;
             temp_p.x=position.at<float>(0);
             temp_p.y=position.at<float>(1);

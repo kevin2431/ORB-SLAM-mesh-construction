@@ -91,6 +91,7 @@ public:
     MapPoint* GetMapPoint(const size_t &idx);
 
     // KeyPoint functions
+    // 这里的两个函数有用
     std::vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r) const;
     cv::Mat UnprojectStereo(int i);
 

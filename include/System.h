@@ -118,6 +118,9 @@ public:
     // 将keypoint转换到mesh数据结构中
     void TransPoints2Mesh(const string &strSettingsFile);
 
+    // 点云转换，用内置的函数
+    void System::Trans2PointCloud()
+
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)
     int GetTrackingState();

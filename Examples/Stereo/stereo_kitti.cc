@@ -139,7 +139,8 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     //SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
-    SLAM.TransPoints2Mesh(argv[2]);
+    //SLAM.TransPoints2Mesh(argv[2]);
+    SLAM.Trans2PointCloud();
 
     return 0;
 }

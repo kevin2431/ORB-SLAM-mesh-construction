@@ -476,6 +476,70 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+void System::Trans2PointCloud()
+{
+    cout<<"正在将图像转换为点云..."<<endl;
+    // 定义点云使用的格式:这里用的是 XYZRGB 
+    typedef pcl::PointXYZRGB PointT;
+    typedef pcl::PointCloud<PointT> PointCloud;
+    // 新建一个点云
+    PointCloud::Ptr pointCloud( new PointCloud );
+
+
+    // 获取关键帧
+    vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    cv::Mat Two = vpKFs[0]->GetPoseInverse();
+
+    list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
+    list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++, c_id++)
+    {
+        ORB_SLAM2::KeyFrame* pKF = *lRit;
+
+        while(pKF->isBad())
+        {
+          //  cout << "bad parent" << endl;
+            pKF = pKF->GetParent();
+        }
+
+        // 获取frame上计算出来的keypoint
+        // 并将keypoint从像素坐标转换到世界坐标（空间）
+        // 下面两个量是frame的成员
+
+        // number of keypoint
+        int N = pKF->N
+
+        for(int i = 0; i < N; i++)
+        {
+            //cv::Mat UnprojectStereo(int i);
+            cv::Mat position = pKF->UnprojectStereo(i);
+
+            // point3f x,y,z访问
+            PointT pc ;
+            pc.x = position.x;
+            pc.y = position.y;
+            pc.z = position.z;
+            pc.b = 0;
+            pc.g = 255;
+            pc.r = 0;
+            pointCloud->points.push_back( pc );
+        }
+       
+       
+    }
+
+    cout<< "特征点转换完毕" <<endl;
+    pointCloud->is_dense = false;
+    cout<<"点云共有"<<pointCloud->size()<<"个点."<<endl;
+    pcl::io::savePCDFileBinary("map.pcd", *pointCloud );
+
+
+}
+
 void System::TransPoints2Mesh(const string &strSettingsFile)
 {
     cout << "开始转换特征点信息" <<endl;

@@ -130,13 +130,13 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     //SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
-    //SLAM.Trans2PointCloud();
+    SLAM.Trans2PointCloud();
 
     vector<CameraType> cameras;
     SLAM.TransPoints2Mesh(cameras);
 
     cout << cameras.size()<<endl;
-    cv::waitKey(100);
+    cv::waitKey(0);
 
     // --------------------------------------------
     // 点转换完毕，开始mesh操作

@@ -116,7 +116,7 @@ public:
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
     // 将keypoint转换到mesh数据结构中
-    void TransPoints2Mesh(const string &strSettingsFile);
+    void TransPoints2Mesh(vector<CameraType> &cameras);
 
     // 点云转换，用内置的函数
     void Trans2PointCloud();

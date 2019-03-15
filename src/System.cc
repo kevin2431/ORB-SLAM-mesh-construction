@@ -30,6 +30,7 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <types_reconstructor.hpp>
 
 namespace ORB_SLAM2
 {
@@ -518,6 +519,9 @@ void System::Trans2PointCloud()
             //cv::Mat UnprojectStereo(int i);
             cv::Mat position = pKF->UnprojectStereo(i);
 
+            // mat 为空的时候
+            if(position.dim == 0) continue;
+
             // point3f x,y,z访问
             PointT pc ;
             pc.x = position.at<float>(0);
@@ -537,9 +541,96 @@ void System::Trans2PointCloud()
     cout<<"点云共有"<<pointCloud->size()<<"个点."<<endl;
     pcl::io::savePCDFileBinary("map.pcd", *pointCloud );
 
-
 }
 
+void System::TransPoints2Mesh(vector<CameraType> &cameras)
+{
+    // 获取关键帧
+    vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    cv::Mat Two = vpKFs[0]->GetPoseInverse();
+
+    int globalID=0; //mesh 里点的标记
+    int c_id =0 ;   //相机帧号
+    //vector<CameraType> cameras; //相机信息存储
+
+    list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
+    list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
+    {
+        ORB_SLAM2::KeyFrame* pKF = *lRit;
+
+        while(pKF->isBad())
+        {
+          //  cout << "bad parent" << endl;
+            pKF = pKF->GetParent();
+        }
+        Trw = Trw*pKF->GetPose()*Two;
+
+        cv::Mat Tcw = (*lit)*Trw;
+        cv::Mat Rwc = Tcw.rowRange(0,3).colRange(0,3).t();
+        cv::Mat twc = -Rwc*Tcw.rowRange(0,3).col(3);
+
+        // 获取frame上计算出来的keypoint
+        // 并将keypoint从像素坐标转换到世界坐标（空间）
+
+        // number of keypoint
+        int N = pKF->N ;
+        vector<glm::vec3> points;   //存放点的信息，glm格式
+
+        for(int i = 0; i < N; i++)
+        {
+            //cv::Mat UnprojectStereo(int i);
+            cv::Mat position = pKF->UnprojectStereo(i);
+
+            // mat 为空的时候
+            if(position.dim == 0) continue;
+            glm::vec3 temp_p;
+            temp_p.x=position.at<float>(0);
+            temp_p.y=position.at<float>(1);
+            temp_p.z=position.at<float>(2);
+            points.push_back(temp_p);
+        }
+        // 相机信息
+        CameraType tempCamera;
+        glm::vec3 center3D;
+        center3D.x = twc.at<float>(0);
+        center3D.y = twc.at<float>(1);
+        center3D.z = twc.at<float>(2);
+
+		tempCamera.idCam = c_id;
+		tempCamera.center = center3D;
+		tempCamera.imageWidth = 1241;
+		tempCamera.imageHeight = 376;
+
+        caneras.push_back(tempCanera);
+        //cameras[c_id] = tempCamera;
+
+        // 转换到mesh里的点
+		for (int k = 0; k < points.size(); k++)
+		{
+			//NewPointType* singlePoint = new NewPointType();
+			PointType* singlePoint = new PointType();
+
+			singlePoint->position = points[k];
+			singlePoint->idPoint = globalID;
+			singlePoint->addCamera(&cameras[c_id]);
+
+			(cameras[c_id].visiblePointsT).insert(singlePoint);
+
+			globalID++;
+		}
+        c_id++;
+       
+    }
+    cout<<"--------------------------------------------------------"<<endl;
+    cout<<"转换点数："<<global<<endl;
+}
+
+/*
 void System::TransPoints2Mesh(const string &strSettingsFile)
 {
     cout << "开始转换特征点信息" <<endl;
@@ -679,7 +770,6 @@ void System::TransPoints2Mesh(const string &strSettingsFile)
 
 			globalID++;
 		}
-        */
        
     }
 
@@ -689,6 +779,7 @@ void System::TransPoints2Mesh(const string &strSettingsFile)
     pcl::io::savePCDFileBinary("map.pcd", *pointCloud );
 
 }
+*/
 
 int System::GetTrackingState()
 {

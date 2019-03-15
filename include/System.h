@@ -119,7 +119,7 @@ public:
     void TransPoints2Mesh(const string &strSettingsFile);
 
     // 点云转换，用内置的函数
-    void System::Trans2PointCloud();
+    void Trans2PointCloud();
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

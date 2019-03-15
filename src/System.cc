@@ -26,6 +26,11 @@
 #include <pangolin/pangolin.h>
 #include <iomanip>
 
+
+#include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 namespace ORB_SLAM2
 {
 
@@ -471,7 +476,7 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
-void TransPoints2Mesh(const string &strSettingsFile)
+void System::TransPoints2Mesh(const string &strSettingsFile)
 {
     cout << "开始转换特征点信息" <<endl;
     // 读取配置信息

@@ -5,6 +5,7 @@
 #include<chrono>
 
 #include<opencv2/core/core.hpp>
+#include<opencv2/highgui/highgui.hpp>
 
 #include<System.h>
 
@@ -133,6 +134,9 @@ int main(int argc, char **argv)
 
     vector<CameraType> cameras;
     SLAM.TransPoints2Mesh(cameras);
+
+    cout << cameras.size()<<endl;
+    cv::waitKey(100);
 
     // --------------------------------------------
     // 点转换完毕，开始mesh操作

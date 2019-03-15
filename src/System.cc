@@ -538,7 +538,7 @@ void System::Trans2PointCloud()
             pointCloud->points.push_back( pc );
 
             //这里讲点的坐标写入 txt文件
-            f << setprecision(6) << pc.x << " " << px.y  << " " << pc.z << " "  <<endl;
+            f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<endl;
         }
        
        

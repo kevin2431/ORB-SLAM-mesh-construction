@@ -520,9 +520,9 @@ void System::Trans2PointCloud()
 
             // point3f x,y,z访问
             PointT pc ;
-            pc.x = position..at<float>(0);
-            pc.y = position..at<float>(1);
-            pc.z = position..at<float>(2);
+            pc.x = position.at<float>(0);
+            pc.y = position.at<float>(1);
+            pc.z = position.at<float>(2);
             pc.b = 0;
             pc.g = 255;
             pc.r = 0;

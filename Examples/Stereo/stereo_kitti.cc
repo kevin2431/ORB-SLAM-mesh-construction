@@ -23,18 +23,6 @@
 #include <set>
 #include <utility>
 
-#include <CameraPointsCollection.h>
-#include <Chronometer.h>
-#include <Logger.h>
-#include <ReconstructFromSLAMData.h>
-#include <OpenMvgParser.h>
-#include <ConfigParser.h>
-#include <types_config.hpp>
-#include <types_reconstructor.hpp>
-
-#include <points_filtering.hpp>
-
-
 #include<iostream>
 #include<algorithm>
 #include<fstream>

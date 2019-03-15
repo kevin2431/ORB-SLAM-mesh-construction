@@ -18,6 +18,22 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdlib>
+#include <map>
+#include <set>
+#include <utility>
+
+#include <CameraPointsCollection.h>
+#include <Chronometer.h>
+#include <Logger.h>
+#include <ReconstructFromSLAMData.h>
+#include <OpenMvgParser.h>
+#include <ConfigParser.h>
+#include <types_config.hpp>
+#include <types_reconstructor.hpp>
+
+#include <points_filtering.hpp>
+
 
 #include<iostream>
 #include<algorithm>

@@ -528,9 +528,9 @@ void TransPoints2Mesh(const string &strSettingsFile)
         std::vector<cv::KeyPoint> keyPoints = mvKeysUn;
         std::vector<float> depths = mvDepth;
 
-        CameraType tempCamera;
+        //CameraType tempCamera;
 
-		vector<glm::vec3> points;
+		//vector<glm::vec3> points;
 		
         // 相机内参信息
         float cx = fSettings["Camera.cx"];
@@ -565,21 +565,22 @@ void TransPoints2Mesh(const string &strSettingsFile)
 			cv::Point3f newCoord = cv::Point3f(temp.ptr<float>(0)[0] / temp.ptr<float>(3)[0],
 					temp.ptr<float>(1)[0] / temp.ptr<float>(3)[0], temp.ptr<float>(2)[0] / temp.ptr<float>(3)[0]);
 
-			points.push_back(fromCV2GLM(newCoord));
+			//points.push_back(fromCV2GLM(newCoord));
 
 
 
             PointT pc ;
-            pc.x = pointWorld[0];
-            pc.y = pointWorld[1];
-            pc.z = pointWorld[2];
+            pc.x = newCoord[0];
+            pc.y = newCoord[1];
+            pc.z = newCoord[2];
             pc.b = 0;
             pc.g = 255;
             pc.r = 0;
             pointCloud->points.push_back( pc );
 
         }
-        
+
+        /*
         glm::vec3 center3D;
         center3D.x = twc.at<float>(0);
         center3D.y = twc.at<float>(1);
@@ -607,6 +608,8 @@ void TransPoints2Mesh(const string &strSettingsFile)
 
 			globalID++;
 		}
+        */
+       
     }
 
     cout<< "特征点转换完毕" <<endl;

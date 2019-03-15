@@ -501,7 +501,8 @@ void System::TransPoints2Mesh(const string &strSettingsFile)
     int globalID=0;
 
     cout<<"正在将图像转换为点云..."<<endl;
-    // 定义点云使用的格式:这里用的是 XYZRGB typedef pcl::PointXYZRGB PointT;
+    // 定义点云使用的格式:这里用的是 XYZRGB 
+    typedef pcl::PointXYZRGB PointT;
     typedef pcl::PointCloud<PointT> PointCloud;
     // 新建一个点云
     PointCloud::Ptr pointCloud( new PointCloud );
@@ -530,22 +531,23 @@ void System::TransPoints2Mesh(const string &strSettingsFile)
 
         // 获取frame上计算出来的keypoint
         // 并将keypoint从像素坐标转换到世界坐标（空间）
-        std::vector<cv::KeyPoint> keyPoints = mvKeysUn;
-        std::vector<float> depths = mvDepth;
+        // 下面两个量是frame的成员
+        std::vector<cv::KeyPoint> keyPoints = pKF->mvKeysUn;
+        std::vector<float> depths = pKF->mvDepth;
 
         //CameraType tempCamera;
 
 		//vector<glm::vec3> points;
 		
         // 相机内参信息
-        float cx = fSettings["Camera.cx"];
-        float cy = fSettings["Camera.cy"];
-        float fx = fSettings["Camera.fx"];
-        float fy = fSettings["Camera.fx"];
+        float cx = fsSettings["Camera.cx"];
+        float cy = fsSettings["Camera.cy"];
+        float fx = fsSettings["Camera.fx"];
+        float fy = fsSettings["Camera.fx"];
         // 双目没有这个参数
         //float depthScale;
-        float imageWidth = fSettings["Camera.width"];
-        float imageHeight = fSettings["Camera.height"];
+        float imageWidth = fsSettings["Camera.width"];
+        float imageHeight = fsSettings["Camera.height"];
 
         // 帧内特征点转换
         for(int i = 0; i < keyPoints.size(); i++)
@@ -573,11 +575,11 @@ void System::TransPoints2Mesh(const string &strSettingsFile)
 			//points.push_back(fromCV2GLM(newCoord));
 
 
-
+            // point3f x,y,z访问
             PointT pc ;
-            pc.x = newCoord[0];
-            pc.y = newCoord[1];
-            pc.z = newCoord[2];
+            pc.x = newCoord.x;
+            pc.y = newCoord.y;
+            pc.z = newCoord.z;
             pc.b = 0;
             pc.g = 255;
             pc.r = 0;

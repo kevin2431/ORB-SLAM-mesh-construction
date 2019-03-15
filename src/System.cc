@@ -486,6 +486,11 @@ void System::Trans2PointCloud()
     // 新建一个点云
     PointCloud::Ptr pointCloud( new PointCloud );
 
+    string filename = "points coordnate";
+    ofstream f;
+    f.open(filename.c_str());
+    f << fixed;
+
 
     // 获取关键帧
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
@@ -531,10 +536,15 @@ void System::Trans2PointCloud()
             pc.g = 255;
             pc.r = 0;
             pointCloud->points.push_back( pc );
+
+            //这里讲点的坐标写入 txt文件
+            f << setprecision(6) << pc.x << " " << px.y  << " " << pc.z << " "  <<endl;
         }
        
        
     }
+    f.close();
+    cout<< "坐标输出完毕"<<endl;
 
     cout<< "特征点转换完毕" <<endl;
     pointCloud->is_dense = false;

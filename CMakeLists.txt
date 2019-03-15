@@ -92,6 +92,8 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
+src/mesh/core/
+src/mesh/core/utilities/
 )
 
 # -----------------------  link library ---------------------------
@@ -101,32 +103,25 @@ ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+
+${GMPXX_LIBRARIES}
+${GMP_LIBRARIES}
+${LAPACK_LIBRARIES}
+${CGAL_LIBRARY}
+${Boost_LIBRARIES}
+${ASSIMP_LIBRARIES} 
+${PCL_LIBRARIES}
 )
 
 # ---------------------- copy from mesh ------------------------
-file(GLOB_RECURSE LIB_SOURCE src/core/*.cpp)
-file(GLOB_RECURSE MAIN_SOURCE src/mesh/example/OpenMvgParser.cpp
-                            src/mesh/example/ORBIncrementalParser.cpp
-                            src/mesh/example/ORBParser.cpp
-                            src/mesh/example/points_filtering.cpp
-)
 
 # Build examples
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
-add_executable(stereo_mesh Examples/Stereo/stereo_mesh.cpp ${MAIN_SOURCE} ${LIB_SOURCE})
-target_link_libraries(stereo_mesh ${PROJECT_NAME} 
-                                    ${OpenCV_LIBS}
-                                    ${GMPXX_LIBRARIES}
-                                    ${GMP_LIBRARIES}
-                                    ${LAPACK_LIBRARIES}
-                                    ${CGAL_LIBRARY}
-                                    ${Boost_LIBRARIES}
-                                    ${ASSIMP_LIBRARIES} 
-                                    ${PCL_LIBRARIES}
-                                    )
+add_executable(stereo_mesh Examples/Stereo/stereo_mesh.cpp )
+target_link_libraries(stereo_mesh ${PROJECT_NAME} )
 
 
 

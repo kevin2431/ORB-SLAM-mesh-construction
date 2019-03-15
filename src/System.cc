@@ -496,7 +496,7 @@ void System::Trans2PointCloud()
 
     list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
     list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
-    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++, c_id++)
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
     {
         ORB_SLAM2::KeyFrame* pKF = *lRit;
 
@@ -511,7 +511,7 @@ void System::Trans2PointCloud()
         // 下面两个量是frame的成员
 
         // number of keypoint
-        int N = pKF->N
+        int N = pKF->N ;
 
         for(int i = 0; i < N; i++)
         {

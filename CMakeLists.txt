@@ -92,8 +92,20 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/mesh/core/*.cpp
-src/mesh/core/utilities/*.cpp
+
+src/mesh/core/CameraPointsCollection.cpp
+src/mesh/core/ConfigParser.cpp
+src/mesh/core/Delaunay3DCellInfo.cpp
+src/mesh/core/Delaunay3DVertexInfo.cpp
+src/mesh/core/ManifoldManager.cpp
+src/mesh/core/OutputManager.cpp
+src/mesh/core/ReconstructFromSfMData.cpp
+src/mesh/core/ReconstructFromSLAMData.cpp
+src/mesh/core/TriangulationManager.cpp
+
+src/mesh/core/utilities/Chronometer.cpp
+src/mesh/core/utilities/Logger.cpp
+src/mesh/core/utilities/utilities.cpp
 )
 
 # -----------------------  link library ---------------------------

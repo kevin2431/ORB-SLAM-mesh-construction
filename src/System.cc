@@ -477,6 +477,93 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+void System::localMap2Mesh(vector<CameraType> &cameras)
+{
+    // 获取地图的关键帧
+    vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+    // 获取关键帧的局部地图点，画出来
+    // 直接keypoint转换有问题
+
+    int globalID=0; //mesh 里点的标记
+    int c_id =0 ;   //相机帧号
+
+    // Frame pose is stored relative to its reference keyframe (which is optimized by BA and pose graph).
+    // We need to get first the keyframe pose and then concatenate the relative transformation.
+    // Frames not localized (tracking failure) are not saved.
+
+    // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
+    // which is true when tracking failed (lbL).
+    list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
+    list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
+    {
+        ORB_SLAM2::KeyFrame* pKF = *lRit;
+
+        // 过滤无效帧
+        while(pKF->isBad())
+        {
+          //  cout << "bad parent" << endl;
+            pKF = pKF->GetParent();
+        }
+        
+        // 局部地图点转换，另外一个matchpoint好像不行
+        std::set<MapPoint*> mspMapPoints= pKF->GetMapPoints();
+        vector<MapPoint*> localPoint = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
+        int N=localPoint.size();
+
+        vector<glm::vec3> points;   //存放点的信息，glm格式
+
+        for(size_t i = 0; i < N; i++)
+        {
+            if(localPoint[i]->isBad() )
+                continue;
+            cv::Mat pos = localPoint[i]->GetWorldPos();
+            
+            // 临时的点
+            glm::vec3 temp_p;
+            temp_p.x=pos.at<float>(0);
+            temp_p.y=pos.at<float>(1);
+            temp_p.z=pos.at<float>(2);
+            points.push_back(temp_p);
+            
+        }
+        // 相机信息
+        CameraType tempCamera;
+        cv::Mat twc = pKF->GetStereoCenter();   //双目中心？ 是否要相机中心
+
+        glm::vec3 center3D;
+        center3D.x = twc.at<float>(0);
+        center3D.y = twc.at<float>(1);
+        center3D.z = twc.at<float>(2);
+
+		tempCamera.idCam = c_id;
+		tempCamera.center = center3D;
+		tempCamera.imageWidth = 1241;
+		tempCamera.imageHeight = 376;
+
+        cameras.push_back(tempCamera);
+        //cameras[c_id] = tempCamera;
+
+        // 转换到mesh里的点
+		for (int k = 0; k < points.size(); k++)
+		{
+			//NewPointType* singlePoint = new NewPointType();
+			PointType* singlePoint = new PointType();
+
+			singlePoint->position = points[k];
+			singlePoint->idPoint = globalID;
+			singlePoint->addCamera(&cameras[c_id]);
+
+			(cameras[c_id].visiblePointsT).insert(singlePoint);
+
+			globalID++;
+		}
+        c_id++;
+    }
+    cout<<"--------------------------------------------------------"<<endl;
+    cout<<"转换点数："<<globalID<<endl;
+}
 
 void System::localMapPoint2Cloud()
 {
@@ -514,7 +601,7 @@ void System::localMapPoint2Cloud()
           //  cout << "bad parent" << endl;
             pKF = pKF->GetParent();
         }
-        std::set<MapPoint*> mspMapPoints=GetMapPoints();
+        std::set<MapPoint*> mspMapPoints= pKF->GetMapPoints();
         vector<MapPoint*> localPoint = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
         int N=localPoint.size();
         for(size_t i = 0; i < N; i++)

@@ -129,6 +129,9 @@ public:
     // 局部地图点-> 点云
     void localMapPoint2Cloud();
 
+    // 局部地图-> mesh 
+    void localMap2Mesh(vector<CameraType> &cameras);
+
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)
     int GetTrackingState();

@@ -129,13 +129,17 @@ int main(int argc, char **argv)
     cout << "mean tracking time: " << totaltime/nImages << endl;
 
     // Save camera trajectory
-    //SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
-    SLAM.Trans2PointCloud();
-    SLAM.mapPoint2Cloud();
+    SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
+    //SLAM.Trans2PointCloud();
+    //SLAM.mapPoint2Cloud();
+    // 保存局部地图点的点云
     SLAM.localMapPoint2Cloud();
     
+    // 准换局部地图点到mesh
     vector<CameraType> cameras;
-    SLAM.TransPoints2Mesh(cameras);
+    SLAM.localMap2Mesh(cameras);
+
+    //SLAM.TransPoints2Mesh(cameras);
 
     cout << cameras.size()<<endl;
     cv::waitKey(0);

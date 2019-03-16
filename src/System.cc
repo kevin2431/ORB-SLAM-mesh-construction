@@ -514,7 +514,8 @@ void System::localMapPoint2Cloud()
           //  cout << "bad parent" << endl;
             pKF = pKF->GetParent();
         }
-        vector<MapPoint*> localPoint= pKF->GetMapPointMatches();
+        std::set<MapPoint*> mspMapPoints=GetMapPoints();
+        vector<MapPoint*> localPoint = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
         int N=localPoint.size();
         for(size_t i = 0; i < N; i++)
         {
@@ -596,7 +597,7 @@ void System::Trans2PointCloud()
     // 新建一个点云
     PointCloud::Ptr pointCloud( new PointCloud );
 
-    string filename = "points coordniate";
+    string filename = "points coordinate";
     ofstream f;
     f.open(filename.c_str());
     f << fixed;

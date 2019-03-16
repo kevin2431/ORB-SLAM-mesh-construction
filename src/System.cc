@@ -477,6 +477,50 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+
+void System::mapPoint2Cloud()
+{
+    cout<<"正在将图像转换为点云..."<<endl;
+    // 定义点云使用的格式:这里用的是 XYZRGB 
+    typedef pcl::PointXYZRGB PointT;
+    typedef pcl::PointCloud<PointT> PointCloud;
+    // 新建一个点云
+    PointCloud::Ptr pointCloud( new PointCloud );
+
+    string filename = "mappoints_coordinate.txt";
+    ofstream f;
+    f.open(filename.c_str());
+    f << fixed;
+
+    vector<MapPoint*> &vpMPs = mpMap->GetAllMapPoints();
+    for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
+    {
+        if(vpMPs[i]->isBad() )
+            continue;
+        cv::Mat pos = vpMPs[i]->GetWorldPos();
+        //glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+
+        PointT pc ;
+        pc.x = pos.at<float>(0);
+        pc.y = pos.at<float>(1);
+        pc.z = pos.at<float>(2);
+        pc.b = 0;
+        pc.g = 255;
+        pc.r = 0;
+        pointCloud->points.push_back( pc );
+
+            //这里讲点的坐标写入 txt文件
+        f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<endl;
+    }
+    cout<< "坐标输出完毕"<<endl;
+
+    cout<< "特征点转换完毕" <<endl;
+    pointCloud->is_dense = false;
+    cout<<"点云共有地图点"<<pointCloud->size()<<"个点."<<endl;
+    pcl::io::savePCDFileBinary("map_point.pcd", *pointCloud );
+
+}
+
 void System::Trans2PointCloud()
 {
     cout<<"正在将图像转换为点云..."<<endl;
@@ -548,8 +592,8 @@ void System::Trans2PointCloud()
 
     cout<< "特征点转换完毕" <<endl;
     pointCloud->is_dense = false;
-    cout<<"点云共有"<<pointCloud->size()<<"个点."<<endl;
-    pcl::io::savePCDFileBinary("map.pcd", *pointCloud );
+    cout<<"点云共有关键点"<<pointCloud->size()<<"个点."<<endl;
+    pcl::io::savePCDFileBinary("keyframe_point.pcd", *pointCloud );
 
 }
 

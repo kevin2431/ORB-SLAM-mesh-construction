@@ -478,6 +478,72 @@ void System::SaveTrajectoryKITTI(const string &filename)
 }
 
 
+void System::localMapPoint2Cloud()
+{
+    cout<<"正在将图像转换为点云..."<<endl;
+    // 定义点云使用的格式:这里用的是 XYZRGB 
+    typedef pcl::PointXYZRGB PointT;
+    typedef pcl::PointCloud<PointT> PointCloud;
+    // 新建一个点云
+    PointCloud::Ptr pointCloud( new PointCloud );
+    // 获取地图的关键帧
+    vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+    // 获取关键帧的局部地图点，画出来
+    // 直接keypoint转换有问题
+
+    string filename = "localmap_cloud.txt";
+    ofstream f;
+    f.open(filename.c_str());
+    f << fixed;
+    // Frame pose is stored relative to its reference keyframe (which is optimized by BA and pose graph).
+    // We need to get first the keyframe pose and then concatenate the relative transformation.
+    // Frames not localized (tracking failure) are not saved.
+
+    // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
+    // which is true when tracking failed (lbL).
+    list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
+    list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
+    for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
+    {
+        ORB_SLAM2::KeyFrame* pKF = *lRit;
+
+        // 过滤无效帧
+        while(pKF->isBad())
+        {
+          //  cout << "bad parent" << endl;
+            pKF = pKF->GetParent();
+        }
+        vector<MapPoint*> localPoint= pKF->GetMapPointMatches();
+        int N=localPoint.size();
+        for(size_t i = 0; i < N; i++)
+        {
+            if(localPoint[i]->isBad() )
+                continue;
+            cv::Mat pos = localPoint[i]->GetWorldPos();
+
+            PointT pc ;
+            pc.x = pos.at<float>(0);
+            pc.y = pos.at<float>(1);
+            pc.z = pos.at<float>(2);
+            pc.b = 0;
+            pc.g = 255;
+            pc.r = 0;
+            pointCloud->points.push_back( pc );
+
+                //这里讲点的坐标写入 txt文件
+            f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
+        }
+
+    }
+    f.close();
+
+    cout<< "特征点转换完毕" <<endl;
+    pointCloud->is_dense = false;
+    cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
+    pcl::io::savePCDFileBinary("map_local.pcd", *pointCloud );
+}
+
 void System::mapPoint2Cloud()
 {
     cout<<"正在将图像转换为点云..."<<endl;
@@ -530,7 +596,7 @@ void System::Trans2PointCloud()
     // 新建一个点云
     PointCloud::Ptr pointCloud( new PointCloud );
 
-    string filename = "points coordnate";
+    string filename = "points coordniate";
     ofstream f;
     f.open(filename.c_str());
     f << fixed;

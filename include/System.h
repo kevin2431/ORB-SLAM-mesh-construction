@@ -126,6 +126,9 @@ public:
     // 地图点转换点云
     void mapPoint2Cloud();
 
+    // 局部地图点-> 点云
+    void localMapPoint2Cloud();
+
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)
     int GetTrackingState();

@@ -124,7 +124,7 @@ public:
     void Trans2PointCloud();
 
     // 地图点转换点云
-    void mapPoint2Cloud()
+    void mapPoint2Cloud();
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

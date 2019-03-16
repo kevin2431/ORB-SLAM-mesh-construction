@@ -492,7 +492,7 @@ void System::mapPoint2Cloud()
     f.open(filename.c_str());
     f << fixed;
 
-    vector<MapPoint*> &vpMPs = mpMap->GetAllMapPoints();
+    vector<MapPoint*> vpMPs = mpMap->GetAllMapPoints();
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
     {
         if(vpMPs[i]->isBad() )

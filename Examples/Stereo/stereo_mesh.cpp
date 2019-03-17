@@ -137,6 +137,7 @@ int main(int argc, char **argv)
     
     // 准换局部地图点到mesh
     vector<CameraType> cameras;
+    cameras.resize(nImages);
     SLAM.localMap2Mesh(cameras);
 
     //SLAM.TransPoints2Mesh(cameras);

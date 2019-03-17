@@ -486,8 +486,8 @@ void System::localMap2Mesh(vector<CameraType> &cameras)
     // 直接keypoint转换有问题
 
     // camera 预先分配内存，用下标访问，而不是push_back
-    int n_keyframe = vpKFs.size();
-    cameras.resize(n_keyframe);
+    //int n_keyframe = vpKFs.size();
+    //cameras.resize(n_keyframe);
 
     int globalID=0; //mesh 里点的标记
     int c_id =0 ;   //相机帧号
@@ -546,9 +546,9 @@ void System::localMap2Mesh(vector<CameraType> &cameras)
 		tempCamera.imageWidth = 1241;
 		tempCamera.imageHeight = 376;
 
-        //cameras.push_back(tempCamera);
+        cameras.push_back(tempCamera);
         // vector插入若原先内存不够，会分配新的内存，将原来的复制过去，所以涉及指针操作可能会出错
-        cameras[c_id] = tempCamera;
+        // cameras[c_id] = tempCamera;
 
         // 转换到mesh里的点
 		for (int k = 0; k < points.size(); k++)

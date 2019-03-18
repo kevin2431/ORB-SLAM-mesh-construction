@@ -93,24 +93,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 
-src/mesh/core/CameraPointsCollection.cpp
-src/mesh/core/ConfigParser.cpp
-src/mesh/core/Delaunay3DCellInfo.cpp
-src/mesh/core/Delaunay3DVertexInfo.cpp
-src/mesh/core/ManifoldManager.cpp
-src/mesh/core/OutputManager.cpp
-src/mesh/core/ReconstructFromSfMData.cpp
-src/mesh/core/ReconstructFromSLAMData.cpp
-src/mesh/core/TriangulationManager.cpp
 
-src/mesh/core/utilities/Chronometer.cpp
-src/mesh/core/utilities/Logger.cpp
-src/mesh/core/utilities/utilities.cpp
-src/mesh/example/OpenMvgParser.cpp
-src/mesh/example/ORBIncrementalParser.cpp
-src/mesh/example/ORBParser.cpp
-src/mesh/example/points_filtering.cpp
-src/mesh/example/SLAM_main.cpp
 )
 
 # -----------------------  link library ---------------------------
@@ -144,8 +127,26 @@ target_link_libraries(stereo_mesh ${PROJECT_NAME} )
 
 # mesh construction
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
-add_executable(mesh_construction src/mesh/example/Main_sfm.cpp)
-target_link_libraries(mesh_construction ${PROJECT_NAME})
+add_executable(mesh_construction src/mesh/example/Main_sfm.cpp
+src/mesh/core/CameraPointsCollection.cpp
+src/mesh/core/ConfigParser.cpp
+src/mesh/core/Delaunay3DCellInfo.cpp
+src/mesh/core/Delaunay3DVertexInfo.cpp
+src/mesh/core/ManifoldManager.cpp
+src/mesh/core/OutputManager.cpp
+src/mesh/core/ReconstructFromSfMData.cpp
+src/mesh/core/ReconstructFromSLAMData.cpp
+src/mesh/core/TriangulationManager.cpp
+
+src/mesh/core/utilities/Chronometer.cpp
+src/mesh/core/utilities/Logger.cpp
+src/mesh/core/utilities/utilities.cpp
+src/mesh/example/OpenMvgParser.cpp
+src/mesh/example/ORBIncrementalParser.cpp
+src/mesh/example/ORBParser.cpp
+src/mesh/example/points_filtering.cpp
+src/mesh/example/SLAM_main.cpp)
+# target_link_libraries(mesh_construction ${PROJECT_NAME})
 
 
 

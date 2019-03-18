@@ -106,6 +106,10 @@ src/mesh/core/TriangulationManager.cpp
 src/mesh/core/utilities/Chronometer.cpp
 src/mesh/core/utilities/Logger.cpp
 src/mesh/core/utilities/utilities.cpp
+src/mesh/example/OpenMvgParser.cpp
+src/mesh/example/ORBIncrementalParser.cpp
+src/mesh/example/ORBParser.cpp
+src/mesh/example/points_filtering.cpp
 )
 
 # -----------------------  link library ---------------------------

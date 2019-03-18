@@ -24,6 +24,7 @@
 #include <types_config.hpp>
 #include <types_reconstructor.hpp>
 
+#include <points_filtering.hpp>
 
 //void printUsage(char *name);
 

@@ -36,8 +36,6 @@
 #include "ORBVocabulary.h"
 #include "Viewer.h"
 
-#include "types_reconstructor.hpp"
-
 namespace ORB_SLAM2
 {
 

@@ -136,9 +136,15 @@ ${PCL_LIBRARIES}
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
+
+# orb_slam
 add_executable(stereo_mesh Examples/Stereo/stereo_mesh.cpp )
 target_link_libraries(stereo_mesh ${PROJECT_NAME} )
 
+# mesh construction
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
+add_executable(mesh_construction src/mesh/example/Main_sfm.cpp)
+target_link_libraries(mesh_construction ${PROJECT_NAME})
 
 
 

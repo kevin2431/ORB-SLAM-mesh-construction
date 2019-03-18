@@ -9,28 +9,6 @@
 
 #include<System.h>
 
-// mesh 部分头分件
-#include <cstdlib>
-#include <map>
-#include <set>
-#include <utility>
-
-#include <CameraPointsCollection.h>
-#include <Chronometer.h>
-#include <Logger.h>
-#include <ReconstructFromSLAMData.h>
-#include <OpenMvgParser.h>
-#include <ConfigParser.h>
-#include <types_config.hpp>
-#include <types_reconstructor.hpp>
-
-#include <points_filtering.hpp>
-
-//void printUsage(char *name);
-
-int maxIterations_ = 0;
-std::string input_file;
-std::string config_file;
 
 // slam 部分
 using namespace std;
@@ -134,77 +112,22 @@ int main(int argc, char **argv)
     //SLAM.Trans2PointCloud();
     //SLAM.mapPoint2Cloud();
     // 保存局部地图点的点云
-    //SLAM.localMapPoint2Cloud();
+    SLAM.localMapPoint2Cloud();
     
     // 准换局部地图点到mesh
-    vector<CameraType> cameras;
-    cameras.resize(nImages);
-    SLAM.localMap2Mesh(cameras);
+    //vector<CameraType> cameras;
+    //cameras.resize(nImages);
+    //SLAM.localMap2Mesh(cameras);
 
     //SLAM.TransPoints2Mesh(cameras);
 
-    cout << cameras.size()<<endl;
-    cv::waitKey(0);
+    //cout << cameras.size()<<endl;
+    //cv::waitKey(0);
 
     // --------------------------------------------
     // 点转换完毕，开始mesh操作
     // ********************************************
     // mesh 配置文件
-    config_file = "res/config/default.json";
-
-    std::cout << "config set to: " << config_file << std::endl;
-
-    std::ofstream statsFile;
-    std::ofstream visiblePointsFile;
-
-    ManifoldReconstructionConfig confManif;
-    ConfigParser configParser = ConfigParser();
-    confManif = configParser.parse(config_file);
-
-    // m 为重建的主要控制器
-    ReconstructFromSLAMData m(confManif);
-    // 这里设置最大迭代步数
-    m.setExpectedTotalIterationsNumber(cameras.size());
-
-    std::vector<bool> inliers;
-	std::cout << "end" << std::endl;
-
-    // Main loop
-	confManif.triangulationUpdateEvery = 1;
-	confManif.initialTriangulationUpdateSkip = 0;
-    //for (auto index_camera : incData.getCameras()) 
-	for (int i = 0; i < cameras.size(); i++)
-	{
-        // If maxIterations_ is set, only execute ReconstructFromSLAMData::addCamera maxIterations_ times
-        if (maxIterations_ && m.iterationCount >= maxIterations_) 
-		{
-            break;
-        }
-
-        //m.addCamera(index_camera.second);
-		m.addCamera(&cameras[i]);
-
-        // Skip the manifold update for the first confManif.initial_manifold_update_skip cameras
-        if (m.iterationCount > confManif.initialTriangulationUpdateSkip && !(m.iterationCount % 1))// confManif.triangulationUpdateEvery)) 
-		{
-            m.update();
-			m.integrityCheck();
-        }
-
-        if (m.iterationCount && !(m.iterationCount % 1))//confManif.saveMeshEvery)) 
-		{
-            int manifold_seq = m.iterationCount / confManif.saveMeshEvery;
-            m.saveMesh("output/", "current_" + std::to_string(manifold_seq));
-        }
-    }
-
-    // Do a last manifold update in case op.numCameras() isn't a multiple of confManif.manifold_update_every
-    if (m.iterationCount > confManif.initialTriangulationUpdateSkip) 
-	{
-        m.update();
-    }
-
-    m.saveMesh("output/", "final");
 
     return 0;
 }

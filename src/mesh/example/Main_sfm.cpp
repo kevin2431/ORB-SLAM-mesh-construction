@@ -12,49 +12,70 @@
 //  useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-
 #include <cstdlib>
 #include <iostream>
 #include <map>
 #include <set>
 #include <utility>
+#include <string>
 
-#include <CameraPointsCollection.h>
-#include <Chronometer.h>
-#include <Logger.h>
-#include <ReconstructFromSLAMData.h>
-#include <OpenMvgParser.h>
-#include <ConfigParser.h>
-#include <types_config.hpp>
-#include <types_reconstructor.hpp>
+#include "CameraPointsCollection.h"
+#include "Chronometer.h"
+#include "Logger.h"
+#include "ReconstructFromSLAMData.h"
+#include "OpenMvgParser.h"
+#include "ConfigParser.h"
+#include "types_config.hpp"
+#include "types_reconstructor.hpp"
+#include "points_filtering.hpp"
+#include "SLAM_main.h"
+#include "SLAM_type.h"
 
-#include <points_filtering.hpp>
 
+#include<opencv2/imgproc/imgproc.hpp>
+
+//#include <g2o/core/sparse_optimizer.h>
+
+//g2o::SparseOptimizer globalOptimizer;
 
 void printUsage(char *name);
 void readArgs(int argc, char **argv);
+void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector<bool> &inliers, ManifoldReconstructionConfig &confManif);
 
 int maxIterations_ = 0;
 std::string input_file;
 std::string config_file;
 
+//vector<NewCameraType> cameras;
+vector<CameraType> cameras;
+vector<vector<int> > meshPointsVisibleFromCamN; //每一帧看到的点ID
+vector<vector<int>> meshCamViewingPointN; //每个点看到的帧集合
+map<int, map<int, cv::Point2f>> pointIDCoord;//每一帧的对应像素点集合
+
+//暂时不需要
+vector<cv::Point3f> center;//相机中心坐标
+vector<vector<cv::Point3f>> framePoints; //关键点的点云坐标
+vector<vector<cv::Point2f>> frameImgPoints;//关键点的像素坐标
+
+vector<map<int, int>> matchPoints;
+vector<vector<cv::Point2f>> imgPoints;
+
+vector<vector<glm::vec2>> meshPoint2DoncamViewingPoint;//每个ID点在出现帧的像素集合
+
+string depth_path;
+string png_path;
 
 int main(int argc, char **argv)
 {
-    if (argc < 2) {
-        printUsage(argv[0]);
-        return 1;
-    }
 
-    readArgs(argc, argv);
+	slam_main(true);
+	config_file = "./res/config/default.json";
 
-    std::cout << "input set to: " << input_file << std::endl;
+    //std::cout << "input set to: " << input_file << std::endl;
     std::cout << "config set to: " << config_file << std::endl;
-    std::cout << "max_iterations set to: " << maxIterations_ << std::endl;
+    //std::cout << "max_iterations set to: " << maxIterations_ << std::endl;
 
 
-
-    utilities::Logger log;
     std::ofstream statsFile;
     std::ofstream visiblePointsFile;
 
@@ -62,119 +83,117 @@ int main(int argc, char **argv)
     ConfigParser configParser = ConfigParser();
     confManif = configParser.parse(config_file);
 
-    SfMData sfm_data_;
+    //SfMData sfm_data_;
 
-    log.startEvent();
-
-    //最后导入到main loop的是 incDATA的第二个指针
-    CameraPointsCollection incData;
-
-
-    OpenMvgParser op_openmvg(argv[1]);
-    op_openmvg.parse();
+    //CameraPointsCollection incData;
+    //OpenMvgParser op_openmvg(argv[1]);
+    //op_openmvg.parse();
 
     ReconstructFromSLAMData m(confManif);
 
-    m.setExpectedTotalIterationsNumber((maxIterations_) ? maxIterations_ + 1 : op_openmvg.getSfmData().numCameras_);
+    //m.setExpectedTotalIterationsNumber((maxIterations_) ? maxIterations_ + 1 : op_openmvg.getSfmData().numCameras_);
 
-    sfm_data_ = op_openmvg.getSfmData();
+    //sfm_data_ = op_openmvg.getSfmData();
 
-    // sfm_data_ 然后到incData中，应该是经过筛选
 
     std::vector<bool> inliers;
-    outlierFiltering(inliers, confManif.outlierFilteringThreshold, sfm_data_);
+	//outlierFiltering(inliers, confManif.outlierFilteringThreshold, sfm_data_);
 
-    for (int cameraIndex = 0; cameraIndex < sfm_data_.camerasList_.size(); cameraIndex++) {
-        CameraType* camera = &sfm_data_.camerasList_[cameraIndex];
-        camera->idCam = cameraIndex;
-        incData.addCamera(camera);
-    }
+	//trans_data(sfm_data_, incData, inliers, confManif);
+	std::cout << "end" << std::endl;
 
-    for (int pointIndex = 0; pointIndex < sfm_data_.points_.size(); pointIndex++) {
-        if (inliers[pointIndex]) {
-            PointType* point = new PointType();
-            point->idPoint = pointIndex;
-            point->position = sfm_data_.points_[pointIndex];
-
-            incData.addPoint(point);
-        }
-    }
-
-    for (int cameraIndex = 0; cameraIndex < sfm_data_.camerasList_.size(); cameraIndex++) {
-
-        int inliersCount = 0, inlierPointIndex = 0;
-        for (auto pointIndex : sfm_data_.pointsVisibleFromCamN_[cameraIndex])
-            if (inliers[pointIndex]) inliersCount++;
-
-        for (auto pointIndex : sfm_data_.pointsVisibleFromCamN_[cameraIndex]) {
-            if (confManif.maxPointsPerCamera < inliersCount) {
-                if (inliers[pointIndex]) {
-
-                    if (inlierPointIndex < confManif.maxPointsPerCamera){
-                        incData.addVisibility(cameraIndex, pointIndex);
-                    }
-
-                    inlierPointIndex++;
-                }
-
-            } else {
-                if (inliers[pointIndex]) incData.addVisibility(cameraIndex, pointIndex);
-            }
-        }
-
-    }
-
-    //彭亮代码就是后面这部分
     // Main loop
-    for (auto index_camera : incData.getCameras()) {
-        CameraType* camera = (index_camera.second);
-
-        if (camera == NULL) {
-            continue;
-        }
-
+	confManif.triangulationUpdateEvery = 1;
+	confManif.initialTriangulationUpdateSkip = 0;
+    //for (auto index_camera : incData.getCameras()) 
+	for (int i = 0; i < cameras.size(); i++)
+	{
         // If maxIterations_ is set, only execute ReconstructFromSLAMData::addCamera maxIterations_ times
-        if (maxIterations_ && m.iterationCount >= maxIterations_) {
+        if (maxIterations_ && m.iterationCount >= maxIterations_) 
+		{
             break;
         }
 
-        log.startEvent();
-
-        m.addCamera(camera);
+        //m.addCamera(index_camera.second);
+		m.addCamera(&cameras[i]);
 
         // Skip the manifold update for the first confManif.initial_manifold_update_skip cameras
-        if (m.iterationCount > confManif.initialTriangulationUpdateSkip && !(m.iterationCount % confManif.triangulationUpdateEvery)) {
+        if (m.iterationCount > confManif.initialTriangulationUpdateSkip && !(m.iterationCount % 1))// confManif.triangulationUpdateEvery)) 
+		{
             m.update();
+			m.integrityCheck();
         }
 
-        if (m.iterationCount > confManif.initialTriangulationUpdateSkip && !(m.iterationCount % confManif.triangulationUpdateEvery)) {
-            m.integrityCheck();
-        }
-
-        if (m.iterationCount && !(m.iterationCount % confManif.saveMeshEvery)) {
+        if (m.iterationCount && !(m.iterationCount % 1))//confManif.saveMeshEvery)) 
+		{
             int manifold_seq = m.iterationCount / confManif.saveMeshEvery;
             m.saveMesh("output/", "current_" + std::to_string(manifold_seq));
-        }
-
-        log.endEventAndPrint("main loop\t\t\t\t\t\t", true);
-
-        if (m.iterationCount > confManif.initialTriangulationUpdateSkip && !(m.iterationCount % confManif.triangulationUpdateEvery)) {
-            m.insertStatValue(log.getLastDelta());
         }
     }
 
     // Do a last manifold update in case op.numCameras() isn't a multiple of confManif.manifold_update_every
-    if (m.iterationCount > confManif.initialTriangulationUpdateSkip) {
+    if (m.iterationCount > confManif.initialTriangulationUpdateSkip) 
+	{
         m.update();
     }
 
     m.saveMesh("output/", "final");
 
-    log.endEventAndPrint("main\t\t\t\t\t\t", true);
+	globalOptimizer.clear();
 
     return 0;
+}
 
+void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector<bool> &inliers, ManifoldReconstructionConfig &confManif)
+{
+	for (int cameraIndex = 0; cameraIndex < sfm_data_.camerasList_.size(); cameraIndex++) 
+	{
+		CameraType* camera = &sfm_data_.camerasList_[cameraIndex];
+		camera->idCam = cameraIndex;
+		incData.addCamera(camera);
+	}
 
+	for (int pointIndex = 0; pointIndex < sfm_data_.points_.size(); pointIndex++) 
+	{
+		if (inliers[pointIndex]) 
+		{
+			PointType* point = new PointType();
+			point->idPoint = pointIndex;
+			point->position = sfm_data_.points_[pointIndex];
+
+			incData.addPoint(point);
+		}
+	}
+
+	for (int cameraIndex = 0; cameraIndex < sfm_data_.camerasList_.size(); cameraIndex++) 
+	{
+		int inliersCount = 0, inlierPointIndex = 0;
+		for (auto pointIndex : sfm_data_.pointsVisibleFromCamN_[cameraIndex])
+			if (inliers[pointIndex]) 
+				inliersCount++;
+
+		for (auto pointIndex : sfm_data_.pointsVisibleFromCamN_[cameraIndex]) 
+		{
+			if (confManif.maxPointsPerCamera < inliersCount) 
+			{
+				if (inliers[pointIndex]) 
+				{
+					if (inlierPointIndex < confManif.maxPointsPerCamera) 
+					{
+						incData.addVisibility(cameraIndex, pointIndex);
+					}
+
+					inlierPointIndex++;
+				}
+
+			}
+			else 
+			{
+				if (inliers[pointIndex]) 
+					incData.addVisibility(cameraIndex, pointIndex);
+			}
+		}
+	}
 }
 
 void printUsage(char *name)

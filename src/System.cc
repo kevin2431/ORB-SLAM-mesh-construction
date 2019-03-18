@@ -620,7 +620,7 @@ void System::localMapPoint2Cloud()
         pc.z = twc.at<float>(2);
         pointCloud->points.push_back( pc );
         // 每一帧相机点的坐标
-        f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
+        f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z <<endl;
     
         std::set<MapPoint*> mspMapPoints= pKF->GetMapPoints();
         vector<MapPoint*> localPoint = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
@@ -642,14 +642,15 @@ void System::localMapPoint2Cloud()
             pc.r = 0;
             pointCloud->points.push_back( pc );
 
-            cout<< "特征点转换完毕" <<endl;
-            pointCloud->is_dense = false;
-            cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
-            pcl::io::savePCDFileBinary("output_pcd/"+"frame"+to_string(id++), *pointCloud );
+            
 
                 //这里讲点的坐标写入 txt文件
     //、、f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
         }
+        cout<< "特征点转换完毕" <<endl;
+        pointCloud->is_dense = false;
+        cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
+        pcl::io::savePCDFileBinary("output_pcd/frame"+to_string(id++)+".pcd", *pointCloud );
 
 
     }

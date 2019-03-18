@@ -146,7 +146,7 @@ src/mesh/example/ORBIncrementalParser.cpp
 src/mesh/example/ORBParser.cpp
 src/mesh/example/points_filtering.cpp
 src/mesh/example/SLAM_main.cpp)
-# target_link_libraries(mesh_construction ${PROJECT_NAME})
+target_link_libraries(mesh_construction ${PROJECT_NAME})
 
 
 

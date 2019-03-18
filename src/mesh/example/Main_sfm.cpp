@@ -29,7 +29,7 @@
 #include "types_reconstructor.hpp"
 #include "points_filtering.hpp"
 #include "SLAM_main.h"
-#include "SLAM_type.h"
+//#include "SLAM_type.h"
 
 
 #include<opencv2/imgproc/imgproc.hpp>

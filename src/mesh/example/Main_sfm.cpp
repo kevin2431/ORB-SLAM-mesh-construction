@@ -40,7 +40,7 @@
 
 void printUsage(char *name);
 void readArgs(int argc, char **argv);
-void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector<bool> &inliers, ManifoldReconstructionConfig &confManif);
+//void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector<bool> &inliers, ManifoldReconstructionConfig &confManif);
 
 int maxIterations_ = 0;
 std::string input_file;
@@ -139,11 +139,11 @@ int main(int argc, char **argv)
 
     m.saveMesh("output/", "final");
 
-	globalOptimizer.clear();
 
     return 0;
 }
 
+/*
 void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector<bool> &inliers, ManifoldReconstructionConfig &confManif)
 {
 	for (int cameraIndex = 0; cameraIndex < sfm_data_.camerasList_.size(); cameraIndex++) 
@@ -196,6 +196,7 @@ void trans_data(SfMData &sfm_data_, CameraPointsCollection &incData, std::vector
 	}
 }
 
+*/
 void printUsage(char *name)
 {
     std::cout << name << " sfm_data.json [config_file.json [max_iterations]]" << std::endl;

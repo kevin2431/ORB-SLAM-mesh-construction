@@ -20,7 +20,8 @@ int slam_main(bool singleCamera)
 {
 	int globalID = 0;
 
-	ifstream in("frame_point.txt");
+    string f= "frame_point.txt";
+	ifstream in(f.c_str());
 	string filename;
 	string line;
 

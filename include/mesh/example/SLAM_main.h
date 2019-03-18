@@ -14,9 +14,9 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 
-//#include <pcl/io/pcd_io.h>
-//#include <pcl/point_types.h>
-//#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/cloud_viewer.h>
 
 
 //#include <pcl/common/transforms.h>

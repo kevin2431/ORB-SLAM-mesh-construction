@@ -14,15 +14,15 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/visualization/cloud_viewer.h>
+//#include <pcl/io/pcd_io.h>
+//#include <pcl/point_types.h>
+//#include <pcl/visualization/cloud_viewer.h>
 
 
-#include <pcl/common/transforms.h>
-#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/passthrough.h>
+//#include <pcl/common/transforms.h>
+//#include <pcl/visualization/cloud_viewer.h>
+//#include <pcl/filters/voxel_grid.h>
+//#include <pcl/filters/passthrough.h>
 
 // Eigen !
 #include <opencv2/core/eigen.hpp>
@@ -36,7 +36,7 @@ using namespace std;
 #include <string>
 
 #include <glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+//me#include <glm/gtc/type_ptr.hpp>
 #include "types_reconstructor.hpp"
 
 //extern vector<NewCameraType> cameras;
@@ -53,7 +53,7 @@ extern vector<vector<cv::Point2f>> imgPoints;
 
 extern vector<vector<glm::vec2>> meshPoint2DoncamViewingPoint;//每个ID点在出现帧的像素集合
 
-int showCloud(string path);
+//int showCloud(string path);
 
 int slam_main(bool singleCamera);
 

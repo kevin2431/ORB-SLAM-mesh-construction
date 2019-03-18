@@ -98,6 +98,7 @@ int slam_main(bool singleCamera)
 	return 0;
 }
 
+/*
 int showCloud(string path)
 {
 	PointCloud::Ptr cloud(new PointCloud());
@@ -119,3 +120,4 @@ int showCloud(string path)
 	system("pause");
 	return 0;
 }
+*/

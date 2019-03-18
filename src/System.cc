@@ -546,9 +546,9 @@ void System::localMap2Mesh(vector<CameraType> &cameras)
 		tempCamera.imageWidth = 1241;
 		tempCamera.imageHeight = 376;
 
-        cameras.push_back(tempCamera);
+        //cameras.push_back(tempCamera);
         // vector插入若原先内存不够，会分配新的内存，将原来的复制过去，所以涉及指针操作可能会出错
-        // cameras[c_id] = tempCamera;
+        cameras[c_id] = tempCamera;
 
         // 转换到mesh里的点
 		for (int k = 0; k < points.size(); k++)

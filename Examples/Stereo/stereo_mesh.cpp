@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     //SLAM.Trans2PointCloud();
     //SLAM.mapPoint2Cloud();
     // 保存局部地图点的点云
-    SLAM.localMapPoint2Cloud();
+    //SLAM.localMapPoint2Cloud();
     
     // 准换局部地图点到mesh
     vector<CameraType> cameras;
@@ -151,6 +151,11 @@ int main(int argc, char **argv)
     // mesh 配置文件
     config_file = "res/config/default.json";
 
+    std::cout << "config set to: " << config_file << std::endl;
+
+    std::ofstream statsFile;
+    std::ofstream visiblePointsFile;
+
     ManifoldReconstructionConfig confManif;
     ConfigParser configParser = ConfigParser();
     confManif = configParser.parse(config_file);
@@ -160,6 +165,7 @@ int main(int argc, char **argv)
     // 这里设置最大迭代步数
     m.setExpectedTotalIterationsNumber(cameras.size());
 
+    std::vector<bool> inliers;
 	std::cout << "end" << std::endl;
 
     // Main loop

@@ -477,6 +477,7 @@ void System::SaveTrajectoryKITTI(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+/*
 void System::localMap2Mesh(vector<CameraType> &cameras)
 {
     // 获取地图的关键帧
@@ -569,6 +570,7 @@ void System::localMap2Mesh(vector<CameraType> &cameras)
     cout<<"--------------------------------------------------------"<<endl;
     cout<<"转换点数："<<globalID<<endl;
 }
+*/
 
 void System::localMapPoint2Cloud()
 {
@@ -781,6 +783,7 @@ void System::Trans2PointCloud()
 
 }
 
+/*
 void System::TransPoints2Mesh(vector<CameraType> &cameras)
 {
     // 获取关键帧
@@ -872,6 +875,7 @@ void System::TransPoints2Mesh(vector<CameraType> &cameras)
     cout<<"--------------------------------------------------------"<<endl;
     cout<<"转换点数："<<globalID<<endl;
 }
+*/
 
 /*
 void System::TransPoints2Mesh(const string &strSettingsFile)

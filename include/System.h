@@ -116,7 +116,7 @@ public:
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
     // 将keypoint转换到mesh数据结构中
-    void TransPoints2Mesh(vector<CameraType> &cameras);
+    //void TransPoints2Mesh(vector<CameraType> &cameras);
 
     // 点云转换，用内置的函数
     void Trans2PointCloud();
@@ -128,7 +128,7 @@ public:
     void localMapPoint2Cloud();
 
     // 局部地图-> mesh 
-    void localMap2Mesh(vector<CameraType> &cameras);
+    //void localMap2Mesh(vector<CameraType> &cameras);
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

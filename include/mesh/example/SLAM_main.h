@@ -3,6 +3,31 @@
 #define HEADER_SLAM_MAIN_H
 
 #include <string>
+#include <set>
+#include <map>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include <opencv2/features2d/features2d.hpp>
+// #include <opencv2/nonfree/nonfree.hpp> // use this if you want to use SIFT or SURF
+#include <opencv2/calib3d/calib3d.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/cloud_viewer.h>
+
+
+#include <pcl/common/transforms.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/passthrough.h>
+
+// Eigen !
+#include <opencv2/core/eigen.hpp>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 using namespace std;
 
@@ -11,6 +36,7 @@ using namespace std;
 #include <string>
 
 #include <glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "types_reconstructor.hpp"
 
 //extern vector<NewCameraType> cameras;

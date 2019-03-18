@@ -110,6 +110,7 @@ src/mesh/example/OpenMvgParser.cpp
 src/mesh/example/ORBIncrementalParser.cpp
 src/mesh/example/ORBParser.cpp
 src/mesh/example/points_filtering.cpp
+src/mesh/example/SLAM_main.cpp
 )
 
 # -----------------------  link library ---------------------------

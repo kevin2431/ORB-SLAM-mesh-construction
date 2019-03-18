@@ -577,14 +577,15 @@ void System::localMapPoint2Cloud()
     typedef pcl::PointXYZRGB PointT;
     typedef pcl::PointCloud<PointT> PointCloud;
     // 新建一个点云
-    PointCloud::Ptr pointCloud( new PointCloud );
+    // 每一帧建一个点云
+    
     // 获取地图的关键帧
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
     // 获取关键帧的局部地图点，画出来
     // 直接keypoint转换有问题
 
-    string filename = "localmap_cloud.txt";
+    string filename = "frame_point.txt";
     ofstream f;
     f.open(filename.c_str());
     f << fixed;
@@ -594,6 +595,7 @@ void System::localMapPoint2Cloud()
 
     // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
     // which is true when tracking failed (lbL).
+    int id=0;
     list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
     list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
     for(list<cv::Mat>::iterator lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
@@ -606,6 +608,20 @@ void System::localMapPoint2Cloud()
           //  cout << "bad parent" << endl;
             pKF = pKF->GetParent();
         }
+
+        //点云
+        PointCloud::Ptr pointCloud( new PointCloud );
+        // 加入相机点
+        cv::Mat twc = pKF->GetStereoCenter();   //双目中心？ 是否要相机中心
+
+        PointT pc ;
+        pc.x = twc.at<float>(0);
+        pc.y = twc.at<float>(1);
+        pc.z = twc.at<float>(2);
+        pointCloud->points.push_back( pc );
+        // 每一帧相机点的坐标
+        f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
+    
         std::set<MapPoint*> mspMapPoints= pKF->GetMapPoints();
         vector<MapPoint*> localPoint = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
         int N=localPoint.size();
@@ -613,6 +629,8 @@ void System::localMapPoint2Cloud()
         {
             if(localPoint[i]->isBad() )
                 continue;
+            
+            // 读入空电建
             cv::Mat pos = localPoint[i]->GetWorldPos();
 
             PointT pc ;
@@ -624,17 +642,23 @@ void System::localMapPoint2Cloud()
             pc.r = 0;
             pointCloud->points.push_back( pc );
 
+            cout<< "特征点转换完毕" <<endl;
+            pointCloud->is_dense = false;
+            cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
+            pcl::io::savePCDFileBinary("output_pcd/"+"frame"+to_string(id++), *pointCloud );
+
                 //这里讲点的坐标写入 txt文件
-            f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
+    //、、f << setprecision(6) << pc.x << " " << pc.y  << " " << pc.z << " "  <<N<<endl;
         }
+
 
     }
     f.close();
 
-    cout<< "特征点转换完毕" <<endl;
-    pointCloud->is_dense = false;
-    cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
-    pcl::io::savePCDFileBinary("map_local.pcd", *pointCloud );
+    //cout<< "特征点转换完毕" <<endl;
+    //pointCloud->is_dense = false;
+    //cout<<"点云共有局部地图点"<<pointCloud->size()<<"个点."<<endl;
+    //pcl::io::savePCDFileBinary("map_local.pcd", *pointCloud );
 }
 
 void System::mapPoint2Cloud()
